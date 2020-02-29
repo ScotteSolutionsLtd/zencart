@@ -200,15 +200,25 @@
     return $type;
   }
 
-
-// function to return field length
-// uses $tbl = table name, $fld = field name
-  function zen_field_length($tbl, $fld) {
+/**
+ * The number of characters that can fit in the database field with the given coordinates. Currently only supports
+ * columns that have a max_length defined in the database and shown in "SHOW COLUMNS".
+ *
+ * For text, blob, or other fields without max-size defined or showing, this will return 0.
+ * @todo Add support for database TEXT fields
+ * @todo Add a content-encoding component for multi-byters
+ *
+ * @param $tbl string Table name.
+ * @param $fld string Field name.
+ *
+ * @return int The length of the field.
+ */
+function zen_field_length($tbl, $fld) {
     global $db;
     $rs = $db->MetaColumns($tbl);
-    $length = $rs[strtoupper($fld)]->max_length;
-    return $length;
-  }
+
+    return (int) $rs[strtoupper($fld)]->max_length;
+}
 
 
 /**

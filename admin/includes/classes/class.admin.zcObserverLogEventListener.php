@@ -59,11 +59,16 @@ class zcObserverLogEventListener extends base {
     $this->notifier->notify('NOTIFY_ADMIN_FIRE_LOG_WRITERS', $log_data);
   }
 
-  static function prepareLogdata($message_to_log = '', $requested_severity = '')
-  {
+/**
+ * @param string $message_to_log
+ * @param string $requested_severity
+ * @return array The data to log.
+ */
+static function prepareLogdata($message_to_log = '', $requested_severity = '')
+{
     global $PHP_SELF;
     $flagged = 0;
-    $notes = $specific_message = $gzpostdata = $postdata = '';
+    $specific_message = $gzpostdata = $postdata = '';
     $severity = self::INFO;
 
     /**
@@ -74,7 +79,7 @@ class zcObserverLogEventListener extends base {
     $postdata = $_POST;
     $postdata = self::filterArrayElements($postdata);
     $postdata = self::ensureDataIsUtf8($postdata);
-    $notes = self::parseForMaliciousContent(print_r($postdata, true));
+    $notes = self::parseForMaliciousContent(print_r($postdata, true)) ?: '';
     /**
      * Since the POST data was an array, we json-encode the parsed POST data for storage in the logging system
      */
@@ -83,33 +88,30 @@ class zcObserverLogEventListener extends base {
     /**
      * Handle specific message to be logged, if passed
      */
-    if ($message_to_log != '' && $message_to_log != 'POST')
-    {
-      $data = $message_to_log;
-      if (is_array($message_to_log))
-      {
-        $data = self::filterArrayElements($data);
-        $data = self::ensureDataIsUtf8($data);
-        $data = print_r($data, true);
-      }
-      $specific_message = $data;
-      $notes2 = self::parseForMaliciousContent(print_r($data, true));
-      $notes = $notes . (strlen($notes) > 0 ? '; ' : '') . $notes2;
+    if ($message_to_log != '' && $message_to_log != 'POST') {
+        $data = $message_to_log;
+        if (is_array($message_to_log)) {
+            $data = self::filterArrayElements($data);
+            $data = self::ensureDataIsUtf8($data);
+            $data = print_r($data, true);
+        }
+        $specific_message = $data;
+        $notes2 = self::parseForMaliciousContent(print_r($data, true));
+        $notes .= (strlen($notes) > 0 ? '; ' : '') . $notes2;
     }
-    if ($specific_message == '')
-    {
-      $specific_message = "Accessed page [" . basename($PHP_SELF) . "]";
-      if (isset($_REQUEST['action'])) $specific_message .= ' with action=' . $_REQUEST['action'] . '. Review page_parameters and postdata for details.';
+    if ($specific_message == '') {
+        $specific_message = "Accessed page [" . basename($PHP_SELF) . "]";
+        if (isset($_REQUEST['action']))
+            $specific_message .= ' with action=' . $_REQUEST['action'] . '. Review page_parameters and postdata for details.';
     }
 
     /**
      * Set severity flags
      * If $notes is not false, then that means the malicious-content detector found things which should be deemed remarkable, so we elevate the severity to 'notice'
      */
-    if ($notes !== false && $notes != '')
-    {
-      $severity = self::NOTICE;
-      $flagged = 1;
+    if ($notes !== false && $notes != '') {
+        $severity = self::NOTICE;
+        $flagged = 1;
     }
 
     /**
@@ -133,21 +135,19 @@ class zcObserverLogEventListener extends base {
     /**
      * Prepare an array of data to be passed to all log-writers (which are observers listening for the Fire event, called below)
      */
-    $log_data = array(
-        'event_epoch_time'=> time(),
-        'admin_id'        => (isset($_SESSION['admin_id'])) ? (int)$_SESSION['admin_id'] : 0,
-        'page_accessed'   => basename($PHP_SELF) . (!isset($_SESSION['admin_id']) || (int)$_SESSION['admin_id'] == 0 ? ' ' . (isset($_POST['admin_name']) ? $_POST['admin_name'] : (isset($_POST['admin_email']) ? $_POST['admin_email'] : '') ) : ''),
+    return array(
+        'event_epoch_time' => time(),
+        'admin_id' => (isset($_SESSION['admin_id'])) ? (int)$_SESSION['admin_id'] : 0,
+        'page_accessed' => basename($PHP_SELF) . (!isset($_SESSION['admin_id']) || (int)$_SESSION['admin_id'] == 0 ? ' ' . (isset($_POST['admin_name']) ? $_POST['admin_name'] : (isset($_POST['admin_email']) ? $_POST['admin_email'] : '')) : ''),
         'page_parameters' => preg_replace('/(&amp;|&)$/', '', zen_get_all_get_params()),
-        'specific_message'=> $specific_message,
-        'ip_address'      => substr($_SERVER['REMOTE_ADDR'],0,45),
-        'postdata'        => $postdata,
-        'flagged'         => $flagged,
-        'attention'       => ($notes === false ? '' : substr($notes,0,zen_field_length(TABLE_ADMIN_ACTIVITY_LOG, 'attention'))),
-        'severity'        => strtolower($levels[$severity]),  // converts int to corresponding string
+        'specific_message' => $specific_message,
+        'ip_address' => substr($_SERVER['REMOTE_ADDR'], 0, 45),
+        'postdata' => $postdata,
+        'flagged' => $flagged,
+        'attention' => $notes,
+        'severity' => strtolower($levels[$severity]),  // converts int to corresponding string
     );
-
-    return $log_data;
-  }
+}
 
   /**
    * Filter out things which ought not to be recorded in logs, such as actual pass words
