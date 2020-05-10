@@ -7,7 +7,7 @@
  * @copyright Portions Copyright 2003 osCommerce
  * @package paymentMethod
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
- * @version $Id: Scott Morrison May 10, 2020 v157-payeezyjsv2-2.0-dev $
+ * @version $Id: Scott Morrison May 10, 2020 v157-payeezyjs-2.0-dev $
  *
  */
 require_once './includes/application_top.php';

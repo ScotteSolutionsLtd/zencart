@@ -5,13 +5,10 @@
  * @see https://developer.payeezy.com/user/login to signup a Payeezy developer account
  * Payeezy example provided here: https://github.com/GBSEcom/paymentJS_php_integration
  *
- * Add the following line in your template footer for pages that have the credit card form:
- * require DIR_WS_MODULES . 'payment/payeezyjsv2/footer.inc';
- *
  * Requires PHP > 7
  * @package paymentMethod
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
- * @version $Id: Scott Morrison May 10, 2020 v157-payeezyjsv2-2.0-dev $
+ * @version $Id: Scott Morrison May 10, 2020 v157-payeezyjs-2.0-dev $
  */
 
 if (!defined('DB_PREFIX')) {

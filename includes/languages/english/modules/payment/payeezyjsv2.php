@@ -6,7 +6,7 @@
  * @copyright Copyright 2003-2012 Zen Cart Development Team
  * @copyright Portions Copyright 2003 osCommerce
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
- * @version $Id: Scott Morrison May 10, 2020 v157-payeezyjsv2-2.0-dev $
+ * @version $Id: Scott Morrison May 10, 2020 v157-payeezyjs-2.0-dev $
  */
 
 define('MODULE_PAYMENT_PAYEEZYJSV2_TEXT_DESCRIPTION', 'PayeezyJS v2<br><br>Uses version 2 of the Payeezy PaymentsJS V2 API.<br>Run PCI Compliant credit card payments using your Zen Cart store.<br><br><a href="https://docs.paymentjs.firstdata.com/" target="_blank">Click for more information or to sign up an account</a><br><br><a href="https://developer.payeezy.com/" target="_blank">Log In To Your Payeezy Developer Account</a>');
